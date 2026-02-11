@@ -2277,15 +2277,31 @@
         }
         
         function saveEntry(entry) {
-            // Get existing entries from localStorage
-            let entries = JSON.parse(localStorage.getItem('bookfol_entries') || '[]');
-            entries.push(entry);
-            localStorage.setItem('bookfolk_entries', JSON.stringify(entries));
-            
-            // In a real implementation, you would send this to Google Sheets
-            // See instructions below for Google Sheets integration
-            console.log('Entry saved:', entry);
-        }
+    // Save to localStorage as backup
+    let entries = JSON.parse(localStorage.getItem('bookfolk_entries') || '[]');
+    entries.push(entry);
+    localStorage.setItem('bookfolk_entries', JSON.stringify(entries));
+    
+    // Send to Google Sheets
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzuUQOVuqqGm53dGJxaJpnrNyH5z-GBKblH9auISAW68NIZ-Z0ztF0BYAgmjnpDQwsS/exec';
+    
+    fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(entry)
+    })
+    .then(() => {
+        console.log('Entry saved to Google Sheets');
+    })
+    .catch(error => {
+        console.error('Error saving to Google Sheets:', error);
+        // Data is still saved locally as backup
+    });
+}
+
         
         function updateSummary() {
             const summaryList = document.getElementById('summaryList');
